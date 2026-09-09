@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - FloodShield Chennai</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* =========================================================
+           ABOUT PAGE
+           ========================================================= */
+
+        .about-shell {
+            min-height: calc(100vh - 68px);
+            padding: 46px 0 40px;
+        }
+
+        .about-header {
+            max-width: 850px;
+            margin-bottom: 36px;
+        }
+
+        .about-header h1 {
+            margin-top: 12px;
+            font-size: clamp(34px, 5vw, 52px);
+            line-height: 1.05;
+            letter-spacing: -0.035em;
+            color: var(--text);
+        }
+
+        .about-header p {
+            margin-top: 16px;
+            max-width: 760px;
+            color: var(--text-dim);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .about-card {
+            height: 100%;
+            padding: 26px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(145deg, rgba(15, 30, 53, 0.96), rgba(8, 16, 29, 0.98));
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.20);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .about-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--line-strong);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+        }
+
+        .about-card h2 {
+            margin-bottom: 12px;
+            color: var(--text);
+            font-size: 21px;
+        }
+
+        .about-card p {
+            color: var(--text-dim);
+            font-size: 13.5px;
+            line-height: 1.75;
+        }
+
+        .about-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 18px;
+            border-radius: 12px;
+            background: rgba(52, 211, 232, 0.10);
+            border: 1px solid rgba(52, 211, 232, 0.18);
+            color: var(--cyan);
+            font-size: 21px;
+        }
+
+        .about-icon.green {
+            background: rgba(61, 220, 155, 0.10);
+            border-color: rgba(61, 220, 155, 0.18);
+            color: var(--green);
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 18px 0 0;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--line);
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .feature-list i {
+            margin-top: 2px;
+            color: var(--cyan);
+            flex: none;
+        }
+
+        .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 18px;
+        }
+
+        .tech-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 11px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.025);
+            color: var(--text-dim);
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .tech-pill i {
+            color: var(--cyan);
+        }
+
+        .mission-card {
+            position: relative;
+            overflow: hidden;
+            padding: 32px;
+            margin-top: 20px;
+            border: 1px solid rgba(52, 211, 232, 0.16);
+            border-radius: var(--radius-lg);
+            background:
+                radial-gradient(500px 200px at 0% 0%, rgba(52, 211, 232, 0.08), transparent 70%),
+                linear-gradient(145deg, rgba(15, 30, 53, 0.98), rgba(6, 11, 22, 0.98));
+        }
+
+        .mission-card::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            right: -70px;
+            top: -80px;
+            border-radius: 50%;
+            border: 1px solid rgba(52, 211, 232, 0.10);
+        }
+
+        .mission-card h2 {
+            color: var(--text);
+            font-size: 25px;
+            margin-bottom: 12px;
+        }
+
+        .mission-card p {
+            max-width: 850px;
+            color: var(--text-dim);
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .about-stat {
+            height: 100%;
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .about-stat strong {
+            display: block;
+            color: var(--text);
+            font-family: var(--font-display);
+            font-size: 24px;
+        }
+
+        .about-stat span {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-faint);
+            font-size: 11px;
+            letter-spacing: 0.04em;
+        }
+
+        .about-stat p {
+            margin-top: 10px;
+            color: var(--text-dim);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .contact-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            margin-top: 28px;
+            padding: 24px 26px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: var(--navy-900);
+        }
+
+        .contact-card h3 {
+            color: var(--text);
+            font-size: 18px;
+        }
+
+        .contact-card p {
+            margin-top: 5px;
+            color: var(--text-faint);
+            font-size: 12px;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border-radius: 999px;
+            border: 1px solid rgba(52, 211, 232, 0.22);
+            background: rgba(52, 211, 232, 0.08);
+            color: var(--cyan);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.15s ease;
+        }
+
+        .contact-link:hover {
+            background: rgba(52, 211, 232, 0.14);
+            color: var(--cyan);
+        }
+
+        @media (max-width: 991px) {
+            .about-shell {
+                padding-top: 32px;
+            }
+            .contact-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .about-shell {
+                padding-top: 24px;
+            }
+            .about-card {
+                padding: 21px;
+            }
+            .mission-card {
+                padding: 24px;
+            }
+            .about-header h1 {
+                font-size: 34px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SINGLE CORRECT NAVBAR -->
+<nav class="navbar navbar-expand-lg app-navbar" aria-label="Primary navigation">
+    <div class="container-fluid app-container">
+
+        <a class="navbar-brand brand-lockup" href="{{ url_for('index') }}">
+            <span class="brand-mark">
+                <i class="bi bi-cloud-lightning-rain-fill" aria-hidden="true"></i>
+            </span>
+            <span>
+                <strong>FloodShield Chennai</strong>
+                <small>FLOOD ACCESS INTELLIGENCE</small>
+            </span>
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-lg-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">
+                        <i class="bi bi-grid"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('risk_map') }}">
+                        <i class="bi bi-map"></i> Risk Map
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('safe_route') }}">
+                        <i class="bi bi-signpost-split"></i> Safe Route
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('alerts') }}">
+                        <i class="bi bi-bell"></i> Alerts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('analytics') }}">
+                        <i class="bi bi-bar-chart"></i> Analytics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('scenario') }}">
+                        <i class="bi bi-sliders"></i> Scenario
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ url_for('about') }}">
+                        <i class="bi bi-info-circle"></i> About
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-status">
+                <span class="status-dot"></span>
+                <span>LIVE</span>
+                <b><i class="bi bi-geo-alt-fill"></i> Chennai</b>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+<!-- ABOUT CONTENT -->
+<main class="about-shell">
+    <div class="app-container">
+
+        <header class="about-header">
+            <div class="eyebrow accent-eyebrow">
+                <span class="pulse-dot"></span>
+                ABOUT THE PLATFORM
+            </div>
+
+            <h1>
+                Chennai Flood Intelligence,
+                <span style="color: var(--cyan);">built for safer access.</span>
+            </h1>
+
+            <p>
+                FloodShield Chennai is an AI-powered urban flood intelligence
+                platform designed to help citizens, emergency responders and
+                local authorities understand flood risk, identify safer routes
+                and make faster decisions during heavy rainfall.
+            </p>
+        </header>
+
+        <section class="mission-card">
+            <div class="eyebrow accent-eyebrow">
+                <i class="bi bi-bullseye"></i>
+                OUR MISSION
+            </div>
+
+            <h2>Turn flood data into actionable decisions.</h2>
+
+            <p>
+                Instead of simply showing rainfall or flood locations,
+                FloodShield combines environmental conditions, road risk,
+                alerts and scenario analysis into a single decision-support
+                platform. The goal is simple: help people understand
+                <strong style="color: var(--text);">where the risk is,</strong>
+                <strong style="color: var(--text);">how it may change,</strong>
+                and
+                <strong style="color: var(--text);">which actions are safer.</strong>
+            </p>
+        </section>
+
+        <section class="mt-4">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="about-card">
+                        <div class="about-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h2>What FloodShield Does</h2>
+                        <p>
+                            The platform provides a centralized view of
+                            Chennai's flood-access conditions and transforms
+                            complex information into easy-to-understand
+                            risk indicators.
+                        </p>
+                        <ul class="feature-list">
+                            <li><i class="bi bi-check-circle-fill"></i><span>Real-time flood and road risk monitoring</span></li>
+                            <li><i class="bi bi-check-circle-fill"></i><span>Interactive risk mapping</span></li>
+                            <li><i class="bi bi-check-circle-fill"></i><span>Safer route identification</span></li>
+                            <li><i class="bi bi-check-circle-fill"></i><span>Emergency flood alerts</span></li>
+                            <li><i class="bi bi-check-circle-fill"></i><span>Rainfall scenario simulation</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="about-card">
+                        <div class="about-icon green">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <h2>Technology Stack</h2>
+                        <p>
+                            FloodShield is designed as a lightweight web
+                            platform using modern web technologies and
+                            data-visualization tools.
+                        </p>
+                        <div class="tech-list">
+                            <span class="tech-pill"><i class="bi bi-filetype-html"></i> HTML5</span>
+                            <span class="tech-pill"><i class="bi bi-filetype-css"></i> CSS3</span>
+                            <span class="tech-pill"><i class="bi bi-filetype-js"></i> JavaScript</span>
+                            <span class="tech-pill"><i class="bi bi-bootstrap"></i> Bootstrap 5</span>
+                            <span class="tech-pill"><i class="bi bi-map"></i> Leaflet.js</span>
+                            <span class="tech-pill"><i class="bi bi-bar-chart"></i> Chart.js</span>
+                            <span class="tech-pill"><i class="bi bi-code-slash"></i> Flask</span>
+                            <span class="tech-pill"><i class="bi bi-database"></i> Database</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-4">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">
+                        <span class="pulse-dot"></span>
+                        PLATFORM CAPABILITIES
+                    </div>
+                    <h2 style="margin-top: 8px; color: var(--text);">
+                        Built around the flood-response workflow
+                    </h2>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-3">
+                    <div class="about-stat">
+                        <strong><i class="bi bi-map" style="color: var(--cyan);"></i></strong>
+                        <span>RISK MAPPING</span>
+                        <p>Visualize high-risk roads and flood-prone zones.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="about-stat">
+                        <strong><i class="bi bi-sign-turn-right" style="color: var(--green);"></i></strong>
+                        <span>SAFE ROUTING</span>
+                        <p>Identify safer alternatives during flood events.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="about-stat">
+                        <strong><i class="bi bi-bell" style="color: var(--amber);"></i></strong>
+                        <span>ALERT INTELLIGENCE</span>
+                        <p>Surface important flood and access warnings.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="about-stat">
+                        <strong><i class="bi bi-cloud-lightning" style="color: var(--red);"></i></strong>
+                        <span>SCENARIO ANALYSIS</span>
+                        <p>Explore how rainfall changes may affect risk.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-card">
+            <div>
+                <h3>Have feedback or questions?</h3>
+                <p>Help us improve FloodShield Chennai and its flood-response experience.</p>
+            </div>
+            <a class="contact-link" href="mailto:support@floodshieldchennai.com">
+                <i class="bi bi-envelope"></i>
+                Contact Support
+            </a>
+        </section>
+
+    </div>
+</main>
+
+
+<!-- FOOTER -->
+<footer class="app-footer">
+    <div class="app-container">
+        <strong>FloodShield Chennai</strong>
+        <span>Urban Flood Intelligence &nbsp;•&nbsp; AI-Assisted Risk Awareness</span>
+        <span style="margin-left: auto;">© 2026 FloodShield Chennai</span>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

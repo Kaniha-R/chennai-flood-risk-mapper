@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Safe Route Navigation | FloodShield Chennai</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Leaflet (free, no API key) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <i class="bi bi-shield-fill-check"></i>
+            FloodShield
+            <span>Chennai</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">
+                        <i class="bi bi-grid"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('risk_map') }}">
+                        <i class="bi bi-map"></i> Risk Map
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('safe_route') }}">
+                        <i class="bi bi-signpost-split"></i> Safe Route
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('alerts') }}">
+                        <i class="bi bi-bell"></i> Alerts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('analytics') }}">
+                        <i class="bi bi-bar-chart"></i> Analytics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('scenario') }}">
+                        <i class="bi bi-cloud-rain"></i> Scenario
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('about') }}">
+                        <i class="bi bi-info-circle"></i> About
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<!-- ================= MAIN ================= -->
+<main class="container-fluid app-container">
+
+    <div id="safe-route-page">
+
+        <!-- PAGE HEADER -->
+        <div class="page-header mb-4">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-signpost-split-fill text-cyan me-2"></i>
+                    Intelligent Safe Route Recommendation
+                </h1>
+                <p class="page-subtitle">
+                    Tell us where you're going — we'll show you the safest way there and explain exactly why.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- ================= LEFT COLUMN ================= -->
+            <div class="col-lg-4">
+
+                <!-- Route Selection (REAL DATA - free text) -->
+                <div class="glass-card mb-4">
+                    <h3 class="route-section-title">
+                        <i class="bi bi-geo-fill text-cyan me-2"></i>
+                        Where are you headed?
+                    </h3>
+
+                    <form id="route-finder-form">
+                        <div class="mb-3">
+                            <label for="input-origin" class="form-label">START LOCATION (ORIGIN)</label>
+                            <input type="text"
+                                   id="input-origin"
+                                   class="form-control form-select-custom"
+                                   placeholder="e.g. Tambaram, Airport, Koyambedu, my current area..."
+                                   value="Tambaram Railway Station"
+                                   required>
+                            <small class="text-secondary">Type any place in Chennai</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="input-destination" class="form-label">DESTINATION</label>
+                            <input type="text"
+                                   id="input-destination"
+                                   class="form-control form-select-custom"
+                                   placeholder="e.g. Adyar, Velachery, T Nagar, Guindy..."
+                                   value="Adyar Signal"
+                                   required>
+                            <small class="text-secondary">Type any place in Chennai</small>
+                        </div>
+
+                        <button type="submit" id="find-route-btn" class="btn-cyan w-100 justify-content-center">
+                            <i class="bi bi-cpu me-1"></i>
+                            Find My Safest Route
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Risk Legend -->
+                <div class="glass-card mb-4">
+                    <h4 class="route-section-subtitle">
+                        <i class="bi bi-palette text-cyan me-2"></i>
+                        How to read the map
+                    </h4>
+                    <div class="risk-legend">
+                        <span><span class="legend-dot low"></span>Low risk — safe to travel</span>
+                        <span><span class="legend-dot moderate"></span>Moderate — travel with care</span>
+                        <span><span class="legend-dot high"></span>High — avoid if possible</span>
+                        <span><i class="bi bi-exclamation-triangle-fill legend-flood-icon"></i>Reported waterlogging</span>
+                    </div>
+                </div>
+
+                <!-- Routing Principles -->
+                <div class="glass-card">
+                    <h4 class="route-section-subtitle">
+                        <i class="bi bi-shield-check text-success me-2"></i>
+                        How we pick your route
+                    </h4>
+                    <ul class="text-secondary ps-3 mb-0 route-principles">
+                        <li>We use real road network data (OpenStreetMap + OSRM).</li>
+                        <li>We check live rainfall from Open-Meteo.</li>
+                        <li>We compare the actual route path against known flood-prone zones.</li>
+                        <li>We prefer higher / better-draining roads when alternatives exist.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- ================= RIGHT COLUMN ================= -->
+            <div class="col-lg-8">
+                <div id="routes-container">
+                    <div class="empty-route-state">
+                        <div class="empty-route-icon">
+                            <i class="bi bi-signpost-split"></i>
+                        </div>
+                        <h3>Ready to find your safest way there</h3>
+                        <p>
+                            Type any start and end point in Chennai, then tap
+                            "Find My Safest Route" — we'll use real maps, live rain data
+                            and flood history to recommend the safest option.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/routes.js') }}"></script>
+
+</body>
+</html>
