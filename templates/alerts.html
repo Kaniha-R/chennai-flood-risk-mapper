@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="FloodShield Chennai - Active flood alerts and road accessibility intelligence.">
+
+    <title>Alerts | FloodShield Chennai</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Application CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body>
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+<nav class="navbar navbar-expand-lg app-navbar"
+     aria-label="Primary navigation">
+
+    <div class="container-fluid app-container">
+
+        <!-- Brand -->
+        <a class="navbar-brand brand-lockup"
+           href="{{ url_for('index') }}">
+
+            <span class="brand-mark">
+                <i class="bi bi-cloud-lightning-rain-fill"
+                   aria-hidden="true"></i>
+            </span>
+
+            <span>
+                <strong>FloodShield Chennai</strong>
+                <small>FLOOD ACCESS INTELLIGENCE</small>
+            </span>
+
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+
+            <i class="bi bi-list"></i>
+
+        </button>
+
+        <!-- Navigation -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav mx-lg-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ url_for('index') }}">
+                        <i class="bi bi-grid"></i>
+                        Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ url_for('risk_map') }}">
+                        <i class="bi bi-map"></i>
+                        Risk Map
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ url_for('safe_route') }}">
+                        <i class="bi bi-signpost-split"></i>
+                        Safe Route
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active"
+                       aria-current="page"
+                       href="{{ url_for('alerts') }}">
+                        <i class="bi bi-bell"></i>
+                        Alerts
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ url_for('analytics') }}">
+                        <i class="bi bi-bar-chart"></i>
+                        Analytics
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ url_for('scenario') }}">
+                        <i class="bi bi-sliders"></i>
+                        Scenario
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ url_for('about') }}">
+                        <i class="bi bi-info-circle"></i>
+                        About
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Live Status -->
+            <div class="nav-status">
+
+                <span class="status-dot"></span>
+
+                <span>LIVE</span>
+
+                <b>
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Chennai
+                </b>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<main class="alerts-shell app-container">
+
+    <!-- Error -->
+    <div id="alerts-error"
+         class="map-error d-none"
+         role="alert">
+
+        <i class="bi bi-exclamation-triangle"></i>
+
+        <span>
+            Unable to load live alerts.
+        </span>
+
+        <button id="retry-alerts"
+                class="btn btn-sm btn-outline-light"
+                type="button">
+
+            Retry
+
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <header class="alerts-page-header">
+
+        <div>
+
+            <span class="eyebrow accent-eyebrow">
+
+                <span class="pulse-dot"></span>
+
+                RESPONSE CENTER
+
+            </span>
+
+            <h1>
+                Emergency alerts
+            </h1>
+
+            <p>
+                Monitor active flood, road accessibility and
+                emergency conditions across the Chennai road network.
+            </p>
+
+        </div>
+
+
+        <!-- Active Alert Counter -->
+
+        <div class="map-status-panel">
+
+            <span class="eyebrow">
+                ACTIVE ALERTS
+            </span>
+
+            <strong id="active-alert-count">
+
+                <span class="status-dot"></span>
+
+                06
+
+            </strong>
+
+            <div class="status-meta">
+
+                <span>
+                    LAST UPDATED
+                    <b id="alerts-updated">
+                        Just now
+                    </b>
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         SUMMARY CARDS
+    ====================================================== -->
+
+    <section class="row g-3 mb-4"
+             aria-label="Alert summary">
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            <small class="text-muted">
+                                CRITICAL
+                            </small>
+
+                            <h3 class="mt-2 mb-0">
+                                02
+                            </h3>
+                        </div>
+
+                        <i class="bi bi-exclamation-octagon fs-2 text-danger"></i>
+
+                    </div>
+
+                    <small class="text-muted">
+                        Immediate attention required
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            <small class="text-muted">
+                                HIGH RISK
+                            </small>
+
+                            <h3 class="mt-2 mb-0">
+                                03
+                            </h3>
+                        </div>
+
+                        <i class="bi bi-water fs-2 text-warning"></i>
+
+                    </div>
+
+                    <small class="text-muted">
+                        Monitor continuously
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            <small class="text-muted">
+                                ROADS AFFECTED
+                            </small>
+
+                            <h3 class="mt-2 mb-0">
+                                18
+                            </h3>
+                        </div>
+
+                        <i class="bi bi-sign-stop fs-2 text-danger"></i>
+
+                    </div>
+
+                    <small class="text-muted">
+                        Across monitored zones
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            <small class="text-muted">
+                                SAFE ZONES
+                            </small>
+
+                            <h3 class="mt-2 mb-0">
+                                42
+                            </h3>
+                        </div>
+
+                        <i class="bi bi-shield-check fs-2 text-success"></i>
+
+                    </div>
+
+                    <small class="text-muted">
+                        Currently accessible
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ALERT CONTAINER
+         IMPORTANT: Keep this ID as alerts-container
+    ====================================================== -->
+
+    <section class="alerts-grid"
+             id="alerts-container"
+             aria-label="Active alerts">
+
+
+        <!-- =========================
+             ALERT 1
+        ========================== -->
+
+        <article class="alert-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <span class="badge bg-danger">
+                        CRITICAL
+                    </span>
+
+                    <h3 class="mt-3">
+                        Severe Waterlogging
+                    </h3>
+
+                </div>
+
+                <i class="bi bi-exclamation-triangle-fill fs-3 text-danger"></i>
+
+            </div>
+
+            <p>
+                Severe water accumulation detected on
+                Velachery Main Road. Vehicle movement is
+                currently unsafe.
+            </p>
+
+            <div class="alert-location">
+
+                <i class="bi bi-geo-alt-fill"></i>
+
+                Velachery Main Road
+
+            </div>
+
+            <div class="alert-meta">
+
+                <span>
+                    <i class="bi bi-droplet-fill"></i>
+                    Water Level: 62 cm
+                </span>
+
+                <span>
+                    <i class="bi bi-clock"></i>
+                    8 min ago
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <!-- =========================
+             ALERT 2
+        ========================== -->
+
+        <article class="alert-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <span class="badge bg-warning text-dark">
+                        HIGH RISK
+                    </span>
+
+                    <h3 class="mt-3">
+                        Road Accessibility Warning
+                    </h3>
+
+                </div>
+
+                <i class="bi bi-water fs-3 text-warning"></i>
+
+            </div>
+
+            <p>
+                Rising water levels detected near
+                Perungudi. Drivers are advised to use
+                alternate routes.
+            </p>
+
+            <div class="alert-location">
+
+                <i class="bi bi-geo-alt-fill"></i>
+
+                Perungudi
+
+            </div>
+
+            <div class="alert-meta">
+
+                <span>
+                    <i class="bi bi-droplet-fill"></i>
+                    Water Level: 38 cm
+                </span>
+
+                <span>
+                    <i class="bi bi-clock"></i>
+                    14 min ago
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <!-- =========================
+             ALERT 3
+        ========================== -->
+
+        <article class="alert-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <span class="badge bg-warning text-dark">
+                        HIGH RISK
+                    </span>
+
+                    <h3 class="mt-3">
+                        Flooded Junction
+                    </h3>
+
+                </div>
+
+                <i class="bi bi-sign-stop-fill fs-3 text-warning"></i>
+
+            </div>
+
+            <p>
+                Temporary traffic restrictions recommended
+                at Taramani Link Road due to floodwater.
+            </p>
+
+            <div class="alert-location">
+
+                <i class="bi bi-geo-alt-fill"></i>
+
+                Taramani Link Road
+
+            </div>
+
+            <div class="alert-meta">
+
+                <span>
+                    <i class="bi bi-droplet-fill"></i>
+                    Water Level: 31 cm
+                </span>
+
+                <span>
+                    <i class="bi bi-clock"></i>
+                    21 min ago
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <!-- =========================
+             ALERT 4
+        ========================== -->
+
+        <article class="alert-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <span class="badge bg-info">
+                        MODERATE
+                    </span>
+
+                    <h3 class="mt-3">
+                        Rising Water Level
+                    </h3>
+
+                </div>
+
+                <i class="bi bi-cloud-rain fs-3 text-info"></i>
+
+            </div>
+
+            <p>
+                Water levels are increasing near
+                Saidapet bridge. Continue monitoring
+                local conditions.
+            </p>
+
+            <div class="alert-location">
+
+                <i class="bi bi-geo-alt-fill"></i>
+
+                Saidapet
+
+            </div>
+
+            <div class="alert-meta">
+
+                <span>
+                    <i class="bi bi-droplet-fill"></i>
+                    Water Level: 24 cm
+                </span>
+
+                <span>
+                    <i class="bi bi-clock"></i>
+                    32 min ago
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <!-- =========================
+             ALERT 5
+        ========================== -->
+
+        <article class="alert-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <span class="badge bg-success">
+                        INFORMATION
+                    </span>
+
+                    <h3 class="mt-3">
+                        Route Restored
+                    </h3>
+
+                </div>
+
+                <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+
+            </div>
+
+            <p>
+                Water levels have decreased and normal
+                vehicle movement has resumed near
+                Adyar.
+            </p>
+
+            <div class="alert-location">
+
+                <i class="bi bi-geo-alt-fill"></i>
+
+                Adyar
+
+            </div>
+
+            <div class="alert-meta">
+
+                <span>
+                    <i class="bi bi-shield-check"></i>
+                    Road Accessible
+                </span>
+
+                <span>
+                    <i class="bi bi-clock"></i>
+                    45 min ago
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <!-- =========================
+             ALERT 6
+        ========================== -->
+
+        <article class="alert-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <span class="badge bg-danger">
+                        CRITICAL
+                    </span>
+
+                    <h3 class="mt-3">
+                        Road Closure
+                    </h3>
+
+                </div>
+
+                <i class="bi bi-slash-circle-fill fs-3 text-danger"></i>
+
+            </div>
+
+            <p>
+                Road segment temporarily closed because
+                of high floodwater. Avoid the area and
+                follow alternate routes.
+            </p>
+
+            <div class="alert-location">
+
+                <i class="bi bi-geo-alt-fill"></i>
+
+                Madipakkam
+
+            </div>
+
+            <div class="alert-meta">
+
+                <span>
+                    <i class="bi bi-sign-stop-fill"></i>
+                    Road Closed
+                </span>
+
+                <span>
+                    <i class="bi bi-clock"></i>
+                    52 min ago
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         RESPONSE INFORMATION
+    ====================================================== -->
+
+    <section class="mt-5 mb-5">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+
+                    <span class="brand-mark">
+                        <i class="bi bi-shield-fill-check"></i>
+                    </span>
+
+                    <div>
+
+                        <h4 class="mb-1">
+                            Flood response intelligence
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            FloodShield continuously evaluates
+                            road accessibility, water levels and
+                            reported incidents.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="row g-3 mt-2">
+
+                    <div class="col-md-4">
+
+                        <div class="p-3 rounded bg-light">
+
+                            <strong>
+                                <i class="bi bi-broadcast-pin"></i>
+                                Real-time monitoring
+                            </strong>
+
+                            <p class="small text-muted mb-0 mt-2">
+                                Monitor changing flood conditions
+                                across Chennai.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="p-3 rounded bg-light">
+
+                            <strong>
+                                <i class="bi bi-cpu"></i>
+                                AI risk analysis
+                            </strong>
+
+                            <p class="small text-muted mb-0 mt-2">
+                                AI-assisted risk classification
+                                helps prioritize critical locations.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="p-3 rounded bg-light">
+
+                            <strong>
+                                <i class="bi bi-signpost-2"></i>
+                                Safer routing
+                            </strong>
+
+                            <p class="small text-muted mb-0 mt-2">
+                                Use the Safe Route module to
+                                identify safer alternatives.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="app-footer">
+
+    <div class="app-container">
+
+        <strong>
+            FloodShield Chennai
+        </strong>
+
+        <span>
+            AI-Powered Flood Access Risk Intelligence
+        </span>
+
+        <span>
+            Smart City Safety Platform
+        </span>
+
+        <small>
+            © 2026 FloodShield Chennai
+        </small>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script><script src="{{ url_for('static', filename='js/alerts.js') }}"></script>
+
+</body>
+</html>
