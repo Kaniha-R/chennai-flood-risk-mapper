@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chennai AI and GIS flood risk command center.">
+    <title>Risk Map | FloodShield Chennai</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
+</head>
+<body class="map-page">
+    <nav class="navbar navbar-expand-lg app-navbar" aria-label="Primary navigation">
+        <div class="container-fluid app-container">
+            <a class="navbar-brand brand-lockup" href="{{ url_for('index') }}">
+                <span class="brand-mark"><i class="bi bi-cloud-lightning-rain-fill" aria-hidden="true"></i></span>
+                <span><strong>FloodShield Chennai</strong><small>FLOOD ACCESS INTELLIGENCE</small></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mapNav" aria-controls="mapNav" aria-expanded="false" aria-label="Toggle navigation"><i class="bi bi-list"></i></button>
+            <div class="collapse navbar-collapse" id="mapNav">
+                <ul class="navbar-nav mx-lg-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}"><i class="bi bi-grid" aria-hidden="true"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ url_for('risk_map') }}"><i class="bi bi-map" aria-hidden="true"></i> Risk Map</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('safe_route') }}"><i class="bi bi-signpost-split" aria-hidden="true"></i> Safe Route</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('alerts') }}"><i class="bi bi-bell" aria-hidden="true"></i> Alerts</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('analytics') }}"><i class="bi bi-bar-chart" aria-hidden="true"></i> Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('scenario') }}"><i class="bi bi-sliders" aria-hidden="true"></i> Scenario</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}"><i class="bi bi-info-circle" aria-hidden="true"></i> About</a></li>
+                </ul>
+                <div class="nav-status"><span class="status-dot"></span><span>LIVE</span><b><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> Chennai</b></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="map-command-center app-container">
+        <div id="map-error" class="map-error d-none" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>Unable to load flood risk data.</span><button id="retry-map" class="btn btn-sm btn-outline-light" type="button">Retry</button></div>
+        <header class="map-page-header">
+            <div><span class="eyebrow accent-eyebrow"><span class="pulse-dot"></span> AI + GIS MONITORING</span><h1>Chennai Flood Risk Map</h1><p>Monitor road accessibility and predict flood-related disruption across Chennai.</p></div>
+            <div class="map-status-panel"><span class="eyebrow">SYSTEM STATUS</span><strong id="system-status"><span class="status-dot"></span> OPERATIONAL</strong><div class="status-meta"><span>LAST UPDATED <b id="last-updated">Just now</b></span><span>DATA MODE <b id="data-mode">MOCK</b></span></div></div>
+        </header>
+
+        <section class="map-metrics" aria-label="Road network summary">
+            <article class="map-metric"><span class="metric-icon cyan"><i class="bi bi-signpost-2" aria-hidden="true"></i></span><div><span class="eyebrow">MONITORED ROADS</span><strong id="total-roads">--</strong><small>Network segments</small></div></article>
+            <article class="map-metric critical"><span class="metric-icon red"><i class="bi bi-exclamation-octagon" aria-hidden="true"></i></span><div><span class="eyebrow">CRITICAL</span><strong id="critical-roads">--</strong><small>Immediate attention</small></div></article>
+            <article class="map-metric high"><span class="metric-icon orange"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span><div><span class="eyebrow">HIGH RISK</span><strong id="high-roads">--</strong><small>Monitor closely</small></div></article>
+            <article class="map-metric safe"><span class="metric-icon green"><i class="bi bi-shield-check" aria-hidden="true"></i></span><div><span class="eyebrow">SAFE / ACCESSIBLE</span><strong id="safe-roads">--</strong><small>Available segments</small></div></article>
+        </section>
+
+        <section class="command-grid" aria-label="GIS command center">
+            <article class="map-panel glass-card">
+                <div class="map-panel-header"><div><span class="eyebrow">LIVE ROAD RISK MAP</span><h2><i class="bi bi-broadcast-pin" aria-hidden="true"></i> Chennai network overview</h2><p>AI-predicted accessibility risk by road segment</p></div><div class="map-toolbar"><button id="refresh-map" class="map-tool" type="button" title="Refresh risk data"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Refresh</span></button><button id="locate-user" class="map-tool" type="button" title="Locate me"><i class="bi bi-crosshair" aria-hidden="true"></i><span>Locate</span></button><button id="fullscreen-map" class="map-tool" type="button" title="Toggle fullscreen"><i class="bi bi-fullscreen" aria-hidden="true"></i><span>Fullscreen</span></button></div></div>
+                <div class="map-stage"><div id="map" aria-label="Interactive Chennai road flood risk map"></div><div id="map-loading" class="map-loading d-none"><span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Updating flood risk...</div><div class="map-legend" aria-label="Road risk legend"><strong>ROAD RISK</strong><span><i class="legend-dot low"></i> LOW</span><span><i class="legend-dot moderate"></i> MODERATE</span><span><i class="legend-dot high"></i> HIGH</span><span><i class="legend-dot critical"></i> CRITICAL</span><small>Road accessibility risk</small></div><div class="map-layer-switcher" aria-label="Map layers"><span class="eyebrow">LAYERS</span><button class="layer-button active" type="button"><i class="bi bi-signpost-2" aria-hidden="true"></i> Road Risk</button><button class="layer-button" type="button" title="Rainfall layer is prepared for live data"> <i class="bi bi-cloud-rain" aria-hidden="true"></i> Rainfall</button><button class="layer-button" type="button" title="Accessibility layer is prepared for live data"><i class="bi bi-universal-access" aria-hidden="true"></i> Accessibility</button></div></div>
+            </article>
+
+            <aside class="intelligence-panel glass-card" id="intelligence-panel" aria-labelledby="intelligence-title">
+                <div class="panel-kicker"><span><i class="bi bi-cpu" aria-hidden="true"></i> AI INTELLIGENCE</span><span class="data-mode-badge">DEMO MODEL</span></div><h2 id="intelligence-title">Road intelligence</h2><div class="selected-road"><span class="eyebrow">SELECTED ROAD</span><strong id="road-name">Select a road</strong><small>Click a segment to inspect its prediction</small></div><div class="risk-score-display"><div><span class="eyebrow">AI RISK SCORE</span><strong id="risk-score">--</strong><small>/100</small></div><span id="risk-level" class="risk-badge">WAITING</span></div><div class="factor-list"><div class="factor-heading"><span>RISK FACTORS</span><small>Relative contribution</small></div><div class="risk-factor"><div><span><i class="bi bi-cloud-rain" aria-hidden="true"></i> Rainfall</span><b id="rainfall-factor">--</b></div><div class="factor-track"><span id="rainfall-progress"></span></div></div><div class="risk-factor"><div><span><i class="bi bi-layers" aria-hidden="true"></i> Elevation</span><b id="elevation-factor">--</b></div><div class="factor-track"><span id="elevation-progress"></span></div></div><div class="risk-factor"><div><span><i class="bi bi-droplet" aria-hidden="true"></i> Drainage stress</span><b id="drainage-factor">--</b></div><div class="factor-track"><span id="drainage-progress"></span></div></div><div class="risk-factor"><div><span><i class="bi bi-water" aria-hidden="true"></i> Flood exposure</span><b id="exposure-factor">--</b></div><div class="factor-track"><span id="exposure-progress"></span></div></div></div><div class="accessibility-status"><span class="eyebrow">PREDICTED ACCESSIBILITY</span><strong id="accessibility"><i class="bi bi-dash-circle" aria-hidden="true"></i> --</strong></div><div class="confidence-block"><div><span class="eyebrow">AI CONFIDENCE</span><strong id="confidence">--</strong></div><div class="confidence-track"><span id="confidence-progress"></span></div><small>Based on available environmental and road-network features.</small></div><div class="ai-explanation"><span class="eyebrow">WHY THIS ROAD IS AT RISK</span><p id="ai-explanation">Select a road segment to view its AI-generated demo explanation.</p></div><a class="btn btn-accent w-100" href="{{ url_for('safe_route') }}"><i class="bi bi-signpost-split" aria-hidden="true"></i> Find Safer Route</a></aside>
+        </section>
+
+        <section class="details-strip glass-card" aria-labelledby="details-title"><div class="section-title"><div><span class="eyebrow">SELECTED ROAD DETAILS</span><h2 id="details-title">Decision-ready context</h2></div><span class="section-meta">Updates when a road is selected</span></div><div class="details-grid"><div><span>Road name</span><strong id="detail-road-name">--</strong></div><div><span>Risk score</span><strong id="detail-risk-score">--</strong></div><div><span>Risk level</span><strong id="detail-risk-level">--</strong></div><div><span>Rainfall</span><strong id="detail-rainfall">--</strong></div><div><span>Elevation</span><strong id="detail-elevation">--</strong></div><div><span>Drainage</span><strong id="detail-drainage">--</strong></div><div><span>Accessibility</span><strong id="detail-accessibility">--</strong></div><div><span>AI confidence</span><strong id="detail-confidence">--</strong></div></div></section>
+
+        <section class="road-ranking glass-card" aria-labelledby="ranking-title"><div class="section-title"><div><span class="eyebrow">PRIORITY MONITORING</span><h2 id="ranking-title">Highest risk road segments</h2><p>Roads requiring immediate monitoring or intervention</p></div><a class="text-link" href="{{ url_for('alerts') }}">View alerts <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Road</th><th>Risk score</th><th>Risk level</th><th>Accessibility</th><th>Action</th></tr></thead><tbody id="risk-road-table"><tr><td colspan="6" class="table-loading">Loading road network...</td></tr></tbody></table></div></section>
+
+        <section class="map-bottom-grid"><div class="risk-distribution glass-card"><div class="section-title"><div><span class="eyebrow">NETWORK HEALTH</span><h2>Road risk distribution</h2></div></div><div class="distribution-items"><div><i class="legend-dot low"></i><span>LOW</span><strong id="distribution-low">--</strong></div><div><i class="legend-dot moderate"></i><span>MODERATE</span><strong id="distribution-moderate">--</strong></div><div><i class="legend-dot high"></i><span>HIGH</span><strong id="distribution-high">--</strong></div><div><i class="legend-dot critical"></i><span>CRITICAL</span><strong id="distribution-critical">--</strong></div></div></div><div class="warning-banner"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i><div><span class="eyebrow">FLOOD ACCESS WARNING</span><p>Heavy rainfall may increase accessibility risk on low-elevation and drainage-stressed road segments.</p><strong>Recommended: monitor high-risk roads and consider safer alternatives.</strong></div><a class="text-link" href="{{ url_for('alerts') }}">View alerts <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></div></section>
+    </main>
+    <footer class="map-footer"><div class="app-container"><strong>FloodShield Chennai</strong><span>AI-Powered Flood Access Risk Intelligence</span><small>Smart City Safety Platform · © 2026</small></div></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/mock-data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+</body>
+</html>
