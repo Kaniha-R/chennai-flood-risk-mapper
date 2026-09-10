@@ -8,6 +8,5 @@ python-dotenv==1.0.1
 bcrypt==4.2.0
 requests==2.32.3
 gunicorn==22.0.0
-pandas
-numpy
-matplotlib
+setuptools>=70.0.0
+wheel
